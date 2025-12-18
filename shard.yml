@@ -1,0 +1,11 @@
+name: types
+version: 0.1.0
+description: |
+  Bring the Rust [Result Option] types to Crystal
+
+authors:
+  - initdc <initd@outlook.com>
+
+crystal: ">= 1.0.0, < 2.0.0"
+
+license: MPL-2.0

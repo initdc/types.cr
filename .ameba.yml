@@ -1,0 +1,109 @@
+Style/ArrayLiteralSyntax:
+  Enabled: false
+
+Style/GuardClause:
+  Enabled: false
+
+Style/HashLiteralSyntax:
+  Enabled: false
+
+Style/HeredocEscape:
+  Enabled: true
+
+Style/HeredocIndent:
+  Enabled: true
+  IndentBy: 0
+
+Style/IsAFilter:
+  Enabled: false
+  FilterNames:
+    - select
+    - reject
+    - any?
+    - all?
+    - none?
+    - one?
+
+Style/IsANil:
+  Enabled: true
+
+Style/LargeNumbers:
+  Enabled: true
+  IntMinDigits: 5
+
+Style/MultilineCurlyBlock:
+  Enabled: false
+
+Style/MultilineStringLiteral:
+  Enabled: false
+  AllowBackslashSplitStrings: false
+
+Style/NegatedConditionsInUnless:
+  Enabled: true
+
+Style/ParenthesesAroundCondition:
+  Enabled: true
+  ExcludeTernary: true
+  ExcludeMultiline: true
+  AllowSafeAssignment: true
+
+Style/PercentLiteralDelimiters:
+  Enabled: true
+  DefaultDelimiters: "()"
+  PreferredDelimiters:
+    "%w": "[]"
+    "%W": "[]"
+    "%i": "[]"
+    "%I": "[]"
+    "%r": "{}"
+    "%x": "()"
+  IgnoreLiteralsContainingDelimiters: false
+
+Style/RedundantBegin:
+  Enabled: true
+
+Style/RedundantNext:
+  Enabled: true
+  AllowMultiNext: false
+  AllowEmptyNext: true
+
+Style/RedundantNilInControlExpression:
+  Enabled: false
+
+Style/RedundantReturn:
+  Enabled: false
+
+Style/RedundantSelf:
+  Enabled: false
+  AllowedMethodNames:
+    - in?
+    - inspect
+    - not_nil!
+
+Style/UnlessElse:
+  Enabled: true
+
+Style/VerboseBlock:
+  Enabled: false
+  ExcludeMultipleLineBlocks: true
+  ExcludeCallsWithBlock: true
+  ExcludePrefixOperators: true
+  ExcludeOperators: true
+  ExcludeSetters: false
+  MaxLineLength: ~
+  MaxLength: ~
+
+Style/WhileTrue:
+  Enabled: false
+
+Lint/UnusedArgument:
+  Enabled: false
+
+Lint/UnusedBlockArgument:
+  Enabled: false
+
+Lint/ShadowingOuterLocalVar:
+  Enabled: false
+
+Naming/PredicateName:
+  Enabled: false
