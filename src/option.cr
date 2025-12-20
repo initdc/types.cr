@@ -4,48 +4,254 @@ abstract struct Option(T)
   class UnwrapNone < Exception; end
 
   macro inherited
+    {% type = @type.name(generic_args: false).stringify %}
+
     def is_some
-      self.is_a?(Some)
+    {% if type == "Some" %}
+      true
+    {% else %}
+      false
+    {% end %}
+    end
+
+    def is_some_and(&block : T -> Bool) : Bool
+    {% if type == "None" %}
+      false
+    {% elsif type == "Some" %}
+      block.call(@value)
+    {% end %}
+    end
+
+    def is_some_and(block : T -> Bool) : Bool
+    {% if type == "None" %}
+      false
+    {% elsif type == "Some" %}
+      block.call(@value)
+    {% end %}
     end
 
     def is_none
-      self.is_a?(None)
+    {% if type == "None" %}
+      true
+    {% else %}
+      false
+    {% end %}
+    end
+
+    def is_none_or(&block : T -> Bool) : Bool
+    {% if type == "None" %}
+      true
+    {% elsif type == "Some" %}
+      block.call(@value)
+    {% end %}
+    end
+
+    def is_none_or(block : T -> Bool) : Bool
+    {% if type == "None" %}
+      true
+    {% elsif type == "Some" %}
+      block.call(@value)
+    {% end %}
+    end
+
+    def expect(msg : String) : T
+    {% if type == "Some" %}
+      @value
+    {% elsif type == "None" %}
+      raise UnwrapNone.new(msg)
+    {% end %}
+    end
+
+    def unwrap : T
+    {% if type == "Some" %}
+      @value
+    {% elsif type == "None" %}
+      raise UnwrapNone.new("Called unwrap on None")
+    {% end %}
+    end
+
+    def unwrap_or(default : T) : T
+    {% if type == "Some" %}
+      @value
+    {% elsif type == "None" %}
+      default
+    {% end %}
+    end
+
+    def unwrap_or_else(&block : -> T) : T
+    {% if type == "Some" %}
+      @value
+    {% elsif type == "None" %}
+      block.call
+    {% end %}
+    end
+
+    def unwrap_or_else(block : -> T) : T
+    {% if type == "Some" %}
+      @value
+    {% elsif type == "None" %}
+      block.call
+    {% end %}
+    end
+
+    def map(&block : T -> U) : Option(U) forall U
+    {% if type == "Some" %}
+      Some.new(block.call(@value))
+    {% elsif type == "None" %}
+      None(U).new
+    {% end %}
+    end
+
+    def map(block : T -> U) : Option(U) forall U
+    {% if type == "Some" %}
+      Some.new(block.call(@value))
+    {% elsif type == "None" %}
+      None(U).new
+    {% end %}
+    end
+
+    def inspect(&block : T ->) : Option(T)
+    {% if type == "Some" %}
+      value = @value
+      block.call(value)
+    {% end %}
+      self
+    end
+
+    def inspect(block : T ->) : Option(T)
+    {% if type == "Some" %}
+      value = @value
+      block.call(value)
+    {% end %}
+      self
+    end
+
+    def map_or(default : U, &block : T -> U) : U forall U
+    {% if type == "Some" %}
+      block.call(@value)
+    {% elsif type == "None" %}
+      default
+    {% end %}
+    end
+
+    def map_or(default : U, block : T -> U) : U forall U
+    {% if type == "Some" %}
+      block.call(@value)
+    {% elsif type == "None" %}
+      default
+    {% end %}
+    end
+
+    def map_or_else(default : -> U, &block : T -> U) : U forall U
+    {% if type == "Some" %}
+      block.call(@value)
+    {% elsif type == "None" %}
+      default.call
+    {% end %}
+    end
+
+    def map_or_else(default : -> U, block : T -> U) : U forall U
+    {% if type == "Some" %}
+      block.call(@value)
+    {% elsif type == "None" %}
+      default.call
+    {% end %}
+    end
+
+    def ok_or(error : E) : Result(T, E) forall E
+    {% if type == "Some" %}
+      Ok(T, E).new(@value)
+    {% elsif type == "None" %}
+      Err(T, E).new(error)
+    {% end %}
+    end
+
+    def ok_or_else(&block : -> E) : Result(T, E) forall E
+    {% if type == "Some" %}
+      Ok(T, E).new(@value)
+    {% elsif type == "None" %}
+      Err(T, E).new(block.call)
+    {% end %}
+    end
+
+    def ok_or_else(block : -> E) : Result(T, E) forall E
+    {% if type == "Some" %}
+      Ok(T, E).new(@value)
+    {% elsif type == "None" %}
+      Err(T, E).new(block.call)
+    {% end %}
     end
 
     def and(other : Option(U)) : Option(U) forall U
-      case self
-      when Some
-        other
+    {% if type == "Some" %}
+      other
+    {% elsif type == "None" %}
+      None(U).new
+    {% end %}
+    end
+
+    def and_then(&block : T -> Option(U)) : Option(U) forall U
+    {% if type == "Some" %}
+      block.call(@value)
+    {% elsif type == "None" %}
+      None(U).new
+    {% end %}
+    end
+
+    def and_then(block : T -> Option(U)) : Option(U) forall U
+    {% if type == "Some" %}
+      block.call(@value)
+    {% elsif type == "None" %}
+      None(U).new
+    {% end %}
+    end
+
+    def filter(&block : T -> Bool) : Option(T)
+    {% if type == "Some" %}
+      if block.call(@value)
+        self
       else
-        None(U).new
+        None(T).new
       end
+    {% elsif type == "None" %}
+      self
+    {% end %}
+    end
+
+    def filter(block : T -> Bool) : Option(T)
+    {% if type == "Some" %}
+      if block.call(@value)
+        self
+      else
+        None(T).new
+      end
+    {% elsif type == "None" %}
+      self
+    {% end %}
     end
 
     def or(other : Option(T)) : Option(T)
-      case self
-      when Some
-        self
-      else
-        other
-      end
+    {% if type == "Some" %}
+      self
+    {% elsif type == "None" %}
+      other
+    {% end %}
     end
 
     def or_else(&block : -> Option(T)) : Option(T)
-      case self
-      when Some
-        self
-      else
-        block.call
-      end
+    {% if type == "Some" %}
+      self
+    {% elsif type == "None" %}
+      block.call
+    {% end %}
     end
 
     def or_else(block : -> Option(T)) : Option(T)
-      case self
-      when Some
-        self
-      else
-        block.call
-      end
+    {% if type == "Some" %}
+      self
+    {% elsif type == "None" %}
+      block.call
+    {% end %}
     end
 
     def xor(other : Option(T)) : Option(T)
@@ -70,114 +276,6 @@ struct Some(T) < Option(T)
   def self.[](value : T)
     new(value)
   end
-
-  def is_some_and(&block : T -> Bool) : Bool
-    block.call(@value)
-  end
-
-  def is_some_and(block : T -> Bool) : Bool
-    block.call(@value)
-  end
-
-  def is_none_or(&block : T -> Bool) : Bool
-    block.call(@value)
-  end
-
-  def is_none_or(block : T -> Bool) : Bool
-    block.call(@value)
-  end
-
-  def expect(msg : String) : T
-    @value
-  end
-
-  def unwrap : T
-    @value
-  end
-
-  def unwrap_or(default : T) : T
-    @value
-  end
-
-  def unwrap_or_else(&block : -> T) : T
-    @value
-  end
-
-  def unwrap_or_else(block : -> T) : T
-    @value
-  end
-
-  def map(&block : T -> U) : Option(U) forall U
-    Some.new(block.call(@value))
-  end
-
-  def map(block : T -> U) : Option(U) forall U
-    Some.new(block.call(@value))
-  end
-
-  def inspect(&block : T ->) : Option(T)
-    value = @value
-    block.call(value)
-    self
-  end
-
-  def inspect(block : T ->) : Option(T)
-    value = @value
-    block.call(value)
-    self
-  end
-
-  def map_or(default : U, &block : T -> U) : U forall U
-    block.call(@value)
-  end
-
-  def map_or(default : U, block : T -> U) : U forall U
-    block.call(@value)
-  end
-
-  def map_or_else(default : -> U, &block : T -> U) : U forall U
-    block.call(@value)
-  end
-
-  def map_or_else(default : -> U, block : T -> U) : U forall U
-    block.call(@value)
-  end
-
-  def ok_or(error : E) : Result(T, E) forall E
-    Ok(T, E).new(@value)
-  end
-
-  def ok_or_else(&block : -> E) : Result(T, E) forall E
-    Ok(T, E).new(@value)
-  end
-
-  def ok_or_else(block : -> E) : Result(T, E) forall E
-    Ok(T, E).new(@value)
-  end
-
-  def and_then(&block : T -> Option(U)) : Option(U) forall U
-    block.call(@value)
-  end
-
-  def and_then(block : T -> Option(U)) : Option(U) forall U
-    block.call(@value)
-  end
-
-  def filter(&block : T -> Bool) : Option(T)
-    if block.call(@value)
-      self
-    else
-      None(T).new
-    end
-  end
-
-  def filter(block : T -> Bool) : Option(T)
-    if block.call(@value)
-      self
-    else
-      None(T).new
-    end
-  end
 end
 
 struct None(T) < Option(T)
@@ -186,101 +284,5 @@ struct None(T) < Option(T)
 
   def self.[]
     new
-  end
-
-  def is_some_and(&block : T -> Bool) : Bool
-    false
-  end
-
-  def is_some_and(block : T -> Bool) : Bool
-    false
-  end
-
-  def is_none_or(&block : T -> Bool) : Bool
-    true
-  end
-
-  def is_none_or(block : T -> Bool) : Bool
-    true
-  end
-
-  def expect(msg : String) : T
-    raise UnwrapNone.new(msg)
-  end
-
-  def unwrap : T
-    raise UnwrapNone.new("Called unwrap on None")
-  end
-
-  def unwrap_or(default : T) : T
-    default
-  end
-
-  def unwrap_or_else(&block : -> T) : T
-    block.call
-  end
-
-  def unwrap_or_else(block : -> T) : T
-    block.call
-  end
-
-  def map(&block : T -> U) : Option(U) forall U
-    None(U).new
-  end
-
-  def map(block : T -> U) : Option(U) forall U
-    None(U).new
-  end
-
-  def inspect(&block : T ->) : Option(T)
-    self
-  end
-
-  def inspect(block : T ->) : Option(T)
-    self
-  end
-
-  def map_or(default : U, &block : T -> U) : U forall U
-    default
-  end
-
-  def map_or(default : U, block : T -> U) : U forall U
-    default
-  end
-
-  def map_or_else(default : -> U, &block : T -> U) : U forall U
-    default.call
-  end
-
-  def map_or_else(default : -> U, block : T -> U) : U forall U
-    default.call
-  end
-
-  def ok_or(error : E) : Result(T, E) forall E
-    Err(T, E).new(error)
-  end
-
-  def ok_or_else(&block : -> E) : Result(T, E) forall E
-    Err(T, E).new(block.call)
-  end
-
-  def ok_or_else(block : -> E) : Result(T, E) forall E
-    Err(T, E).new(block.call)
-  end
-
-  def and_then(&block : T -> Option(U)) : Option(U) forall U
-    None(U).new
-  end
-
-  def and_then(block : T -> Option(U)) : Option(U) forall U
-    None(U).new
-  end
-
-  def filter(&block : T -> Bool) : Option(T)
-    self
-  end
-
-  def filter(block : T -> Bool) : Option(T)
-    self
   end
 end
