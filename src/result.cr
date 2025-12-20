@@ -6,7 +6,7 @@ abstract struct Result(T, E)
   class UnwrapErrOnOk < Exception; end
 
   macro inherited
-    {% type = @type.name(generic_args: false).stringify %}
+    {% type = @type.name(generic_args: false) %}
 
     def is_ok : Bool
     {% if type == "Ok" %}
@@ -271,6 +271,20 @@ abstract struct Result(T, E)
       block.call(@error)
     {% end %}
     end
+  end
+
+  def self.from_or(value : T, error : E) : Result(T, E)
+    Ok(T, E).new(value)
+  end
+
+  def self.from_or?(value : T | Nil, error : E) : Result(T, E)
+    value.nil? ? Err(T, E).new(error) : Ok(T, E).new(value)
+  end
+
+  def self.from_or!(block : -> T, error : E) : Result(T, E)
+    Ok(T, E).new(block.call)
+  rescue
+    Err(T, E).new(error)
   end
 end
 
