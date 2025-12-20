@@ -286,6 +286,37 @@ abstract struct Result(T, E)
   rescue
     Err(T, E).new(error)
   end
+
+  include Comparable(self)
+
+  def <=>(other : Result(T, E)) : Int32
+    case {self, other}
+    when {Ok, Err}
+      -1
+    when {Err, Ok}
+      1
+    else
+      {% if T.has_method?(:<=>) && E.has_method?(:<=>) %}
+        if self.is_a?(Ok)
+          self.unwrap <=> other.unwrap
+        else
+          self.unwrap_err <=> other.unwrap_err
+        end
+      {% elsif T == Bool %}
+        if self.is_a?(Ok)
+          left = self.unwrap ? 1 : 0
+          right = other.unwrap ? 1 : 0
+          left - right
+        else
+          left = self.unwrap_err ? 1 : 0
+          right = other.unwrap_err ? 1 : 0
+          left - right
+        end
+      {% else %}
+        0
+      {% end %}
+    end
+  end
 end
 
 struct Ok(T, E) < Result(T, E)
@@ -293,7 +324,7 @@ struct Ok(T, E) < Result(T, E)
 
   def initialize(value : T)
     {% if T.nilable? || E.nilable? %}
-      raise WrapingNil.new("typeof #{{{Ok}}} cannot includes Nil")
+      raise WrapingNil.new("typeof #{{{ Ok }}} cannot includes Nil")
     {% end %}
 
     @value = value
@@ -309,7 +340,7 @@ struct Err(T, E) < Result(T, E)
 
   def initialize(error : E)
     {% if T.nilable? || E.nilable? %}
-      raise WrapingNil.new("typeof #{{{Err}}} cannot includes Nil")
+      raise WrapingNil.new("typeof #{{{ Err }}} cannot includes Nil")
     {% end %}
 
     @error = error

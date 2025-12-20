@@ -238,4 +238,19 @@ describe Option do
     Option.from!(env_user).should eq(Some[%x(whoami).chomp])
     Option.from!(env_not_existing).should eq(None(String)[])
   end
+
+  it "<=>" do
+    a = None(Int32)[]
+    b = Some[0]
+    c = Some[1]
+    d = Some[1]
+
+    e = Some[true]
+    f = Some[true]
+
+    (a < b).should be_true
+    (b < c).should be_true
+    (c == d).should be_true
+    (e == f).should be_true
+  end
 end

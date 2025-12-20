@@ -236,4 +236,23 @@ describe Result do
     Result.from_or!(-> { ENV["USER"] }, false).should eq(Ok(String, Bool)[%x(whoami).chomp])
     Result.from_or!(-> { ENV["NOT_EXISTING"] }, false).should eq(Err(String, Bool)[false])
   end
+
+  it "<=>" do
+    x1 = Ok(Int32, String)[1]
+    y1 = Err(Int32, String)["error"]
+    (x1 < y1).should be_true
+    (y1 < x1).should be_false
+
+    x2 = Ok(Int32, String)[0]
+    y2 = Ok(Int32, String)[1]
+    (x2 < y2).should be_true
+
+    x3 = Err(Int32, Int32)[0]
+    y3 = Err(Int32, Int32)[1]
+    (x3 < y3).should be_true
+
+    x4 = Ok(Bool, String)[true]
+    y4 = Ok(Bool, String)[true]
+    (x3 == y3).should be_true
+  end
 end

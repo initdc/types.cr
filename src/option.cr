@@ -287,6 +287,29 @@ abstract struct Option(T)
   rescue
     None(T).new
   end
+
+  include Comparable(self)
+
+  def <=>(other : Option(T)) : Int32
+    case {self, other}
+    when {Some, None}
+      1
+    when {None, Some}
+      -1
+    when {None, None}
+      0
+    else
+      {% if T.has_method?(:<=>) %}
+        self.unwrap <=> other.unwrap
+      {% elsif T == Bool %}
+        left = self.unwrap ? 1 : 0
+        right = other.unwrap ? 1 : 0
+        left - right
+      {% else %}
+        0
+      {% end %}
+    end
+  end
 end
 
 struct Some(T) < Option(T)
@@ -294,7 +317,7 @@ struct Some(T) < Option(T)
 
   def initialize(value : T)
     {% if T.nilable? %}
-      raise WrapingNil.new("typeof #{{{Some}}} cannot includes Nil")
+      raise WrapingNil.new("typeof #{{{ Some }}} cannot includes Nil")
     {% end %}
 
     @value = value
@@ -308,7 +331,7 @@ end
 struct None(T) < Option(T)
   def initialize
     {% if T.nilable? %}
-      raise WrapingNil.new("typeof #{{{None}}} cannot includes Nil")
+      raise WrapingNil.new("typeof #{{{ None }}} cannot includes Nil")
     {% end %}
   end
 
