@@ -209,4 +209,19 @@ describe Option do
     y4 = None(Int32)[]
     x4.xor(y4).should eq(None(Int32)[])
   end
+
+  it "from" do
+    Option.from(1).should eq(Some[1])
+
+    Option(String).from?(ENV["USER"]?).should eq(Some[%x(whoami).chomp])
+    Option(String).from?(ENV["NOT_EXISTING"]?).should eq(None(String)[])
+
+    Option.from! { ENV["USER"] }.should eq(Some[%x(whoami).chomp])
+    Option.from! { ENV["NOT_EXISTING"] }.should eq(None(String)[])
+
+    env_user = -> { ENV["USER"] }
+    env_not_existing = -> { ENV["NOT_EXISTING"] }
+    Option.from!(env_user).should eq(Some[%x(whoami).chomp])
+    Option.from!(env_not_existing).should eq(None(String)[])
+  end
 end

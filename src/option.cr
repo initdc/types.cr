@@ -96,7 +96,7 @@ abstract struct Option(T)
 
     def map(&block : T -> U) : Option(U) forall U
     {% if type == "Some" %}
-      Some.new(block.call(@value))
+      Some(U).new(block.call(@value))
     {% elsif type == "None" %}
       None(U).new
     {% end %}
@@ -104,7 +104,7 @@ abstract struct Option(T)
 
     def map(block : T -> U) : Option(U) forall U
     {% if type == "Some" %}
-      Some.new(block.call(@value))
+      Some(U).new(block.call(@value))
     {% elsif type == "None" %}
       None(U).new
     {% end %}
@@ -264,6 +264,26 @@ abstract struct Option(T)
         None(T).new
       end
     end
+  end
+
+  def self.from(value : T) : Option(T)
+    value ? Some(T).new(value) : None(T).new
+  end
+
+  def self.from?(value : T | Nil) : Option(T)
+    value ? Some(T).new(value) : None(T).new
+  end
+
+  def self.from!(&block : -> T) : Option(T)
+    Some(T).new(block.call)
+  rescue
+    None(T).new
+  end
+
+  def self.from!(block : -> T) : Option(T)
+    Some(T).new(block.call)
+  rescue
+    None(T).new
   end
 end
 
