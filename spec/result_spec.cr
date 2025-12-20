@@ -217,4 +217,20 @@ describe Result do
     y = Err(Int32, String)["foo"]
     y.unwrap_or_else { |e| e.size }.should eq(3)
   end
+
+  it "from" do
+    Result.from_or("error", true).should eq(Ok(Bool, String)[true])
+    Result.from_or("error", false).should eq(Err(Bool, String)["error"])
+
+    Result(String, Bool).from_or?(false, ENV["USER"]?).should eq(Ok(String, Bool)[%x(whoami).chomp])
+    Result(String, Bool).from_or?(false, ENV["NOT_EXISTING"]?).should eq(Err(String, Bool)[false])
+
+    Result.from_or!(false) { ENV["USER"] }.should eq(Ok(String, Bool)[%x(whoami).chomp])
+    Result.from_or!(false) { ENV["NOT_EXISTING"] }.should eq(Err(String, Bool)[false])
+
+    env_user = -> { ENV["USER"] }
+    env_not_existing = -> { ENV["NOT_EXISTING"] }
+    Result.from_or!(false, env_user).should eq(Ok(String, Bool)[%x(whoami).chomp])
+    Result.from_or!(false, env_not_existing).should eq(Err(String, Bool)[false])
+  end
 end
