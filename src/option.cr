@@ -6,7 +6,7 @@ abstract struct Option(T)
   macro inherited
     {% type = @type.name(generic_args: false).stringify %}
 
-    def is_some
+    def is_some : Bool
     {% if type == "Some" %}
       true
     {% else %}
@@ -30,7 +30,7 @@ abstract struct Option(T)
     {% end %}
     end
 
-    def is_none
+    def is_none : Bool
     {% if type == "None" %}
       true
     {% else %}

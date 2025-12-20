@@ -6,7 +6,7 @@ abstract struct Result(T, E)
   macro inherited
     {% type = @type.name(generic_args: false).stringify %}
 
-    def is_ok
+    def is_ok : Bool
     {% if type == "Ok" %}
       true
     {% else %}
@@ -30,7 +30,7 @@ abstract struct Result(T, E)
     {% end %}
     end
 
-    def is_err
+    def is_err : Bool
     {% if type == "Err" %}
       true
     {% else %}
