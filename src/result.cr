@@ -272,6 +272,20 @@ abstract struct Result(T, E)
     {% end %}
     end
   end
+
+  def self.from_or(value : T, error : E) : Result(T, E)
+    Ok(T, E).new(value)
+  end
+
+  def self.from_or?(value : T | Nil, error : E) : Result(T, E)
+    value.nil? ? Err(T, E).new(error) : Ok(T, E).new(value)
+  end
+
+  def self.from_or!(block : -> T, error : E) : Result(T, E)
+    Ok(T, E).new(block.call)
+  rescue
+    Err(T, E).new(error)
+  end
 end
 
 struct Ok(T, E) < Result(T, E)

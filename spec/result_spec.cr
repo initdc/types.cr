@@ -224,4 +224,16 @@ describe Result do
     expect_raises(Result::WrapNil) { Ok(Bool?, String?)[nil] }
     expect_raises(Result::WrapNil) { Err(Bool?, String?)[nil] }
   end
+
+  it "from" do
+    Result.from_or(true, "error").should eq(Ok(Bool, String)[true])
+    Result.from_or(false, "error").should eq(Ok(Bool, String)[false])
+
+    Result(Bool, String).from_or?(nil, "error").should eq(Err(Bool, String)["error"])
+    Result(String, Bool).from_or?(ENV["USER"]?, false).should eq(Ok(String, Bool)[%x(whoami).chomp])
+    Result(String, Bool).from_or?(ENV["NOT_EXISTING"]?, false).should eq(Err(String, Bool)[false])
+
+    Result.from_or!(-> { ENV["USER"] }, false).should eq(Ok(String, Bool)[%x(whoami).chomp])
+    Result.from_or!(-> { ENV["NOT_EXISTING"] }, false).should eq(Err(String, Bool)[false])
+  end
 end
