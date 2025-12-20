@@ -267,6 +267,26 @@ abstract struct Option(T)
       end
     end
   end
+
+  def self.from(value : T) : Option(T)
+    Some(T).new(value)
+  end
+
+  def self.from?(value : T | Nil) : Option(T)
+    value.nil? ? None(T).new : Some(T).new(value)
+  end
+
+  def self.from!(&block : -> T) : Option(T)
+    Some(T).new(block.call)
+  rescue
+    None(T).new
+  end
+
+  def self.from!(block : -> T) : Option(T)
+    Some(T).new(block.call)
+  rescue
+    None(T).new
+  end
 end
 
 struct Some(T) < Option(T)
