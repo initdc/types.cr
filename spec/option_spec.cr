@@ -216,4 +216,26 @@ describe Option do
     expect_raises(Option::WrapingNil) { Some(Bool?)[false] }
     expect_raises(Option::WrapingNil) { None(Bool?)[] }
   end
+
+  it "from" do
+    Option.from(0).should eq(Some[0])
+    Option.from("").should eq(Some[""])
+    Option.from(false).should eq(Some[false])
+    Option.from([] of Int32).should eq(Some[[] of Int32])
+    Option.from({} of String => Int32).should eq(Some[{} of String => Int32])
+
+    Option(Bool).from?(nil).should eq(None(Bool)[])
+    expect_raises(Option::WrapingNil) { Option.from?(nil) }
+
+    Option(String).from?(ENV["USER"]?).should eq(Some[%x(whoami).chomp])
+    Option(String).from?(ENV["NOT_EXISTING"]?).should eq(None(String)[])
+
+    Option.from! { ENV["USER"] }.should eq(Some[%x(whoami).chomp])
+    Option.from! { ENV["NOT_EXISTING"] }.should eq(None(String)[])
+
+    env_user = -> { ENV["USER"] }
+    env_not_existing = -> { ENV["NOT_EXISTING"] }
+    Option.from!(env_user).should eq(Some[%x(whoami).chomp])
+    Option.from!(env_not_existing).should eq(None(String)[])
+  end
 end
