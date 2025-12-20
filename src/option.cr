@@ -49,10 +49,10 @@ abstract struct Option(T)
     end
 
     def xor(other : Option(T)) : Option(T)
-      case [self, other]
-      when [Some, None]
+      case {self, other}
+      when {Some, None}
         self
-      when [None, Some]
+      when {None, Some}
         other
       else
         None(T).new

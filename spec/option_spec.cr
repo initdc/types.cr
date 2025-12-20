@@ -164,4 +164,49 @@ describe Option do
     Some[3].filter(even).should eq(None(Int32)[])
     Some[4].filter(even).should eq(Some[4])
   end
+
+  it "or" do
+    x1 = Some[2]
+    y1 = None(Int32)[]
+    x1.or(y1).should eq(Some[2])
+
+    x2 = None(Int32)[]
+    y2 = Some[100]
+    x2.or(y2).should eq(Some[100])
+
+    x3 = Some[2]
+    y3 = Some[100]
+    x3.or(y3).should eq(Some[2])
+
+    x4 = None(Int32)[]
+    y4 = None(Int32)[]
+    x4.or(y4).should eq(None(Int32)[])
+  end
+
+  it "or_else" do
+    nobody = -> { None(String)[] }
+    vikings = -> { Some["vikings"] }
+
+    Some["barbarians"].or_else(nobody).should eq(Some["barbarians"])
+    None(String)[].or_else(vikings).should eq(Some["vikings"])
+    None(String)[].or_else(nobody).should eq(None(String)[])
+  end
+
+  it "xor" do
+    x1 = Some[2]
+    y1 = None(Int32)[]
+    x1.xor(y1).should eq(Some[2])
+
+    x2 = None(Int32)[]
+    y2 = Some[2]
+    x2.xor(y2).should eq(Some[2])
+
+    x3 = Some[2]
+    y3 = Some[2]
+    x3.xor(y3).should eq(None(Int32)[])
+
+    x4 = None(Int32)[]
+    y4 = None(Int32)[]
+    x4.xor(y4).should eq(None(Int32)[])
+  end
 end
