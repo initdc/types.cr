@@ -273,7 +273,7 @@ struct Some(T) < Option(T)
   @value : T
 
   def initialize(value : T)
-    {% if T.resolve.union_types.includes?(Nil) %}
+    {% if T.nilable? %}
       raise WrapNil.new("typeof #{{{ Some }}} cannot includes Nil")
     {% end %}
 
@@ -287,7 +287,7 @@ end
 
 struct None(T) < Option(T)
   def initialize
-    {% if T.resolve.union_types.includes?(Nil) %}
+    {% if T.nilable? %}
       raise WrapNil.new("typeof #{{{ None }}} cannot includes Nil")
     {% end %}
   end
