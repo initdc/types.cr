@@ -209,4 +209,11 @@ describe Option do
     y4 = None(Int32)[]
     x4.xor(y4).should eq(None(Int32)[])
   end
+
+  it "new" do
+    expect_raises(Option::WrapingNil) { Some[nil] }
+    expect_raises(Option::WrapingNil) { None(Nil)[] }
+    expect_raises(Option::WrapingNil) { Some(Bool?)[false] }
+    expect_raises(Option::WrapingNil) { None(Bool?)[] }
+  end
 end

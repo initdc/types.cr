@@ -217,4 +217,11 @@ describe Result do
     y = Err(Int32, String)["foo"]
     y.unwrap_or_else { |e| e.size }.should eq(3)
   end
+
+  it "new" do
+    expect_raises(Result::WrapingNil) { Ok(Nil, Nil)[nil] }
+    expect_raises(Result::WrapingNil) { Err(Nil, Nil)[nil] }
+    expect_raises(Result::WrapingNil) { Ok(Bool?, String?)[nil] }
+    expect_raises(Result::WrapingNil) { Err(Bool?, String?)[nil] }
+  end
 end

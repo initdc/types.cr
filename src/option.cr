@@ -1,10 +1,12 @@
 require "./result"
 
 abstract struct Option(T)
+  class WrapingNil < Exception; end
+
   class UnwrapNone < Exception; end
 
   macro inherited
-    {% type = @type.name(generic_args: false).stringify %}
+    {% type = @type.name(generic_args: false) %}
 
     def is_some : Bool
     {% if type == "Some" %}
@@ -270,7 +272,12 @@ end
 struct Some(T) < Option(T)
   @value : T
 
-  def initialize(@value : T)
+  def initialize(value : T)
+    {% if T.resolve.union_types.includes?(Nil) %}
+      raise WrapingNil.new("typeof #{{{Some}}} cannot includes Nil")
+    {% end %}
+
+    @value = value
   end
 
   def self.[](value : T)
@@ -280,6 +287,9 @@ end
 
 struct None(T) < Option(T)
   def initialize
+    {% if T.resolve.union_types.includes?(Nil) %}
+      raise WrapingNil.new("typeof #{{{None}}} cannot includes Nil")
+    {% end %}
   end
 
   def self.[]
