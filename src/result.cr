@@ -1,4 +1,6 @@
 abstract struct Result(T, E)
+  class WrapNil < Exception; end
+
   class UnwrapOnErr < Exception; end
 
   class UnwrapErrOnOk < Exception; end
@@ -275,7 +277,12 @@ end
 struct Ok(T, E) < Result(T, E)
   @value : T
 
-  def initialize(@value : T)
+  def initialize(value : T)
+    {% if T.resolve.union_types.includes?(Nil) || E.resolve.union_types.includes?(Nil) %}
+      raise WrapNil.new("typeof #{{{ Ok }}} cannot includes Nil")
+    {% end %}
+
+    @value = value
   end
 
   def self.[](value : T)
@@ -286,7 +293,12 @@ end
 struct Err(T, E) < Result(T, E)
   @error : E
 
-  def initialize(@error : E)
+  def initialize(error : E)
+    {% if T.resolve.union_types.includes?(Nil) || E.resolve.union_types.includes?(Nil) %}
+      raise WrapNil.new("typeof #{{{ Err }}} cannot includes Nil")
+    {% end %}
+
+    @error = error
   end
 
   def self.[](error : E)

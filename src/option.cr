@@ -1,6 +1,8 @@
 require "./result"
 
 abstract struct Option(T)
+  class WrapNil < Exception; end
+
   class UnwrapNone < Exception; end
 
   macro inherited
@@ -96,7 +98,7 @@ abstract struct Option(T)
 
     def map(&block : T -> U) : Option(U) forall U
     {% if type == "Some" %}
-      Some.new(block.call(@value))
+      Some(U).new(block.call(@value))
     {% elsif type == "None" %}
       None(U).new
     {% end %}
@@ -104,7 +106,7 @@ abstract struct Option(T)
 
     def map(block : T -> U) : Option(U) forall U
     {% if type == "Some" %}
-      Some.new(block.call(@value))
+      Some(U).new(block.call(@value))
     {% elsif type == "None" %}
       None(U).new
     {% end %}
@@ -270,7 +272,12 @@ end
 struct Some(T) < Option(T)
   @value : T
 
-  def initialize(@value : T)
+  def initialize(value : T)
+    {% if T.resolve.union_types.includes?(Nil) %}
+      raise WrapNil.new("typeof #{{{ Some }}} cannot includes Nil")
+    {% end %}
+
+    @value = value
   end
 
   def self.[](value : T)
@@ -280,6 +287,9 @@ end
 
 struct None(T) < Option(T)
   def initialize
+    {% if T.resolve.union_types.includes?(Nil) %}
+      raise WrapNil.new("typeof #{{{ None }}} cannot includes Nil")
+    {% end %}
   end
 
   def self.[]
