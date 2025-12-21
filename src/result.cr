@@ -292,7 +292,7 @@ struct Ok(T, E) < Result(T, E)
   @value : T
 
   def initialize(value : T)
-    {% if T.resolve.union_types.includes?(Nil) || E.resolve.union_types.includes?(Nil) %}
+    {% if T.nilable? || E.nilable? %}
       raise WrapingNil.new("typeof #{{{Ok}}} cannot includes Nil")
     {% end %}
 
@@ -308,7 +308,7 @@ struct Err(T, E) < Result(T, E)
   @error : E
 
   def initialize(error : E)
-    {% if T.resolve.union_types.includes?(Nil) || E.resolve.union_types.includes?(Nil) %}
+    {% if T.nilable? || E.nilable? %}
       raise WrapingNil.new("typeof #{{{Err}}} cannot includes Nil")
     {% end %}
 
