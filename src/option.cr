@@ -210,7 +210,8 @@ abstract struct Option(T)
 
     def filter(&block : T -> Bool) : Option(T)
     {% if type == "Some" %}
-      if block.call(@value)
+      value = @value
+      if block.call(value)
         self
       else
         None(T).new
@@ -222,7 +223,8 @@ abstract struct Option(T)
 
     def filter(block : T -> Bool) : Option(T)
     {% if type == "Some" %}
-      if block.call(@value)
+      value = @value
+      if block.call(value)
         self
       else
         None(T).new
