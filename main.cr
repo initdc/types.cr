@@ -1,5 +1,5 @@
-require "./src/option"
-# require "types/option"
+require "./src/types"
+# require "types"
 
 s = Some[0]
 n = None(Int32)[]

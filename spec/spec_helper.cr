@@ -1,3 +1,2 @@
 require "spec"
-require "../src/result"
-require "../src/option"
+require "../src/types"

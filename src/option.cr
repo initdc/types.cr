@@ -1,5 +1,3 @@
-require "./result"
-
 abstract struct Option(T)
   class WrapNil < Exception; end
 

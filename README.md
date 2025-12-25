@@ -17,7 +17,7 @@ Bring the Rust [Result Option] types to Crystal
 ## Usage
 
 ```crystal
-require "types/option"
+require "types"
 
 s = Some[0]
 n = None(Int32)[]
