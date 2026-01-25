@@ -217,6 +217,30 @@ describe Option do
     expect_raises(Option::WrapNil) { None(Bool?)[] }
   end
 
+  it "pattern matching" do
+    x = Some(Int32)[2]
+    tx = case x
+         in Some, Int32 => i
+           i
+         in Some, Float64 => f
+           f
+         in None
+           0
+         end
+
+    tx.should eq 2
+
+    x = None(Int32)[]
+    tx = case x
+         in Some, Class => any
+           any
+         in None
+           0
+         end
+
+    tx.should eq eq 0
+  end
+
   it "from" do
     Option.from(0).should eq(Some[0])
     Option.from("").should eq(Some[""])

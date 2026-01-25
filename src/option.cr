@@ -303,6 +303,10 @@ struct Some(T) < Option(T)
   def self.[](value : T)
     new(value)
   end
+
+  def deconstruct
+    {self, @value}
+  end
 end
 
 struct None(T) < Option(T)
@@ -314,5 +318,9 @@ struct None(T) < Option(T)
 
   def self.[]
     new
+  end
+
+  def deconstruct
+    {self}
   end
 end
