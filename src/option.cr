@@ -4,256 +4,316 @@ abstract struct Option(T)
   class UnwrapNone < Exception; end
 
   macro inherited
-    {% type = @type.name(generic_args: false).stringify %}
-
+    @[AlwaysInline]
     def is_some : Bool
-    {% if type == "Some" %}
-      true
-    {% else %}
-      false
-    {% end %}
+      case self
+      when Some
+        true
+      else
+        false
+      end
     end
 
+    @[AlwaysInline]
     def is_some_and(&block : T -> Bool) : Bool
-    {% if type == "None" %}
-      false
-    {% elsif type == "Some" %}
-      block.call(@value)
-    {% end %}
+      case self
+      when Some
+        block.call(self.@value)
+      else
+        false
+      end
     end
 
+    @[AlwaysInline]
     def is_some_and(block : T -> Bool) : Bool
-    {% if type == "None" %}
-      false
-    {% elsif type == "Some" %}
-      block.call(@value)
-    {% end %}
+      case self
+      when Some
+        block.call(self.@value)
+      else
+        false
+      end
     end
 
+    @[AlwaysInline]
     def is_none : Bool
-    {% if type == "None" %}
-      true
-    {% else %}
-      false
-    {% end %}
+      case self
+      when Some
+        false
+      else
+        true
+      end
     end
 
+    @[AlwaysInline]
     def is_none_or(&block : T -> Bool) : Bool
-    {% if type == "None" %}
-      true
-    {% elsif type == "Some" %}
-      block.call(@value)
-    {% end %}
+      case self
+      when Some
+        block.call(self.@value)
+      else
+        true
+      end
     end
 
+    @[AlwaysInline]
     def is_none_or(block : T -> Bool) : Bool
-    {% if type == "None" %}
-      true
-    {% elsif type == "Some" %}
-      block.call(@value)
-    {% end %}
+      case self
+      when Some
+        block.call(self.@value)
+      else
+        true
+      end
     end
 
+    @[AlwaysInline]
     def expect(msg : String) : T
-    {% if type == "Some" %}
-      @value
-    {% elsif type == "None" %}
-      raise UnwrapNone.new(msg)
-    {% end %}
+      case self
+      when Some
+        self.@value
+      else
+        raise UnwrapNone.new(msg)
+      end
     end
 
+    @[AlwaysInline]
     def unwrap : T
-    {% if type == "Some" %}
-      @value
-    {% elsif type == "None" %}
-      raise UnwrapNone.new("Called unwrap on None")
-    {% end %}
+      case self
+      when Some
+        self.@value
+      else
+        raise UnwrapNone.new("Called unwrap on None")
+      end
     end
 
+    @[AlwaysInline]
     def unwrap_or(default : T) : T
-    {% if type == "Some" %}
-      @value
-    {% elsif type == "None" %}
-      default
-    {% end %}
+      case self
+      when Some
+        self.@value
+      else
+        default
+      end
     end
 
+    @[AlwaysInline]
     def unwrap_or_else(&block : -> T) : T
-    {% if type == "Some" %}
-      @value
-    {% elsif type == "None" %}
-      block.call
-    {% end %}
+      case self
+      when Some
+        self.@value
+      else
+        block.call
+      end
     end
 
+    @[AlwaysInline]
     def unwrap_or_else(block : -> T) : T
-    {% if type == "Some" %}
-      @value
-    {% elsif type == "None" %}
-      block.call
-    {% end %}
+      case self
+      when Some
+        self.@value
+      else
+        block.call
+      end
     end
 
+    @[AlwaysInline]
     def map(&block : T -> U) : Option(U) forall U
-    {% if type == "Some" %}
-      Some(U).new(block.call(@value))
-    {% elsif type == "None" %}
-      None(U).new
-    {% end %}
+      case self
+      when Some
+        Some(U).new(block.call(self.@value))
+      else
+        None(U).new
+      end
     end
 
+    @[AlwaysInline]
     def map(block : T -> U) : Option(U) forall U
-    {% if type == "Some" %}
-      Some(U).new(block.call(@value))
-    {% elsif type == "None" %}
-      None(U).new
-    {% end %}
+      case self
+      when Some
+        Some(U).new(block.call(self.@value))
+      else
+        None(U).new
+      end
     end
 
+    @[AlwaysInline]
     def inspect(&block : T ->) : Option(T)
-    {% if type == "Some" %}
-      value = @value
-      block.call(value)
-    {% end %}
+      case self
+      when Some
+        value = self.@value
+        block.call(value)
+      else
+      end
       self
     end
 
+    @[AlwaysInline]
     def inspect(block : T ->) : Option(T)
-    {% if type == "Some" %}
-      value = @value
-      block.call(value)
-    {% end %}
+      case self
+      when Some
+        value = self.@value
+        block.call(value)
+      else
+      end
       self
     end
 
+    @[AlwaysInline]
     def map_or(default : U, &block : T -> U) : U forall U
-    {% if type == "Some" %}
-      block.call(@value)
-    {% elsif type == "None" %}
-      default
-    {% end %}
+      case self
+      when Some
+        block.call(self.@value)
+      else
+        default
+      end
     end
 
+    @[AlwaysInline]
     def map_or(default : U, block : T -> U) : U forall U
-    {% if type == "Some" %}
-      block.call(@value)
-    {% elsif type == "None" %}
-      default
-    {% end %}
+      case self
+      when Some
+        block.call(self.@value)
+      else
+        default
+      end
     end
 
+    @[AlwaysInline]
     def map_or_else(default : -> U, &block : T -> U) : U forall U
-    {% if type == "Some" %}
-      block.call(@value)
-    {% elsif type == "None" %}
-      default.call
-    {% end %}
+      case self
+      when Some
+        block.call(self.@value)
+      else
+        default.call
+      end
     end
 
+    @[AlwaysInline]
     def map_or_else(default : -> U, block : T -> U) : U forall U
-    {% if type == "Some" %}
-      block.call(@value)
-    {% elsif type == "None" %}
-      default.call
-    {% end %}
+      case self
+      when Some
+        block.call(self.@value)
+      else
+        default.call
+      end
     end
 
+    @[AlwaysInline]
     def ok_or(error : E) : Result(T, E) forall E
-    {% if type == "Some" %}
-      Ok(T, E).new(@value)
-    {% elsif type == "None" %}
-      Err(T, E).new(error)
-    {% end %}
+      case self
+      when Some
+        Ok(T, E).new(self.@value)
+      else
+        Err(T, E).new(error)
+      end
     end
 
+    @[AlwaysInline]
     def ok_or_else(&block : -> E) : Result(T, E) forall E
-    {% if type == "Some" %}
-      Ok(T, E).new(@value)
-    {% elsif type == "None" %}
-      Err(T, E).new(block.call)
-    {% end %}
+      case self
+      when Some
+        Ok(T, E).new(self.@value)
+      else
+        Err(T, E).new(block.call)
+      end
     end
 
+    @[AlwaysInline]
     def ok_or_else(block : -> E) : Result(T, E) forall E
-    {% if type == "Some" %}
-      Ok(T, E).new(@value)
-    {% elsif type == "None" %}
-      Err(T, E).new(block.call)
-    {% end %}
+      case self
+      when Some
+        Ok(T, E).new(self.@value)
+      else
+        Err(T, E).new(block.call)
+      end
     end
 
+    @[AlwaysInline]
     def and(other : Option(U)) : Option(U) forall U
-    {% if type == "Some" %}
-      other
-    {% elsif type == "None" %}
-      None(U).new
-    {% end %}
+      case self
+      when Some
+        other
+      else
+        None(U).new
+      end
     end
 
+    @[AlwaysInline]
     def and_then(&block : T -> Option(U)) : Option(U) forall U
-    {% if type == "Some" %}
-      block.call(@value)
-    {% elsif type == "None" %}
-      None(U).new
-    {% end %}
+      case self
+      when Some
+        block.call(self.@value)
+      else
+        None(U).new
+      end
     end
 
+    @[AlwaysInline]
     def and_then(block : T -> Option(U)) : Option(U) forall U
-    {% if type == "Some" %}
-      block.call(@value)
-    {% elsif type == "None" %}
-      None(U).new
-    {% end %}
+      case self
+      when Some
+        block.call(self.@value)
+      else
+        None(U).new
+      end
     end
 
+    @[AlwaysInline]
     def filter(&block : T -> Bool) : Option(T)
-    {% if type == "Some" %}
-      value = @value
-      if block.call(value)
-        self
+      case self
+      when Some
+        value = self.@value
+        if block.call(value)
+          self
+        else
+          None(T).new
+        end
       else
-        None(T).new
+        self
       end
-    {% elsif type == "None" %}
-      self
-    {% end %}
     end
 
+    @[AlwaysInline]
     def filter(block : T -> Bool) : Option(T)
-    {% if type == "Some" %}
-      value = @value
-      if block.call(value)
+      case self
+      when Some
+        value = self.@value
+        if block.call(value)
+          self
+        else
+          None(T).new
+        end
+      else
+        self
+      end
+    end
+
+    @[AlwaysInline]
+    def or(other : Option(T)) : Option(T)
+      case self
+      when Some
         self
       else
-        None(T).new
+        other
       end
-    {% elsif type == "None" %}
-      self
-    {% end %}
     end
 
-    def or(other : Option(T)) : Option(T)
-    {% if type == "Some" %}
-      self
-    {% elsif type == "None" %}
-      other
-    {% end %}
-    end
-
+    @[AlwaysInline]
     def or_else(&block : -> Option(T)) : Option(T)
-    {% if type == "Some" %}
-      self
-    {% elsif type == "None" %}
-      block.call
-    {% end %}
+      case self
+      when Some
+        self
+      else
+        block.call
+      end
     end
 
+    @[AlwaysInline]
     def or_else(block : -> Option(T)) : Option(T)
-    {% if type == "Some" %}
-      self
-    {% elsif type == "None" %}
-      block.call
-    {% end %}
+      case self
+      when Some
+        self
+      else
+        block.call
+      end
     end
 
     def xor(other : Option(T)) : Option(T)

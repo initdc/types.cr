@@ -6,270 +6,338 @@ abstract struct Result(T, E)
   class UnwrapErrOnOk < Exception; end
 
   macro inherited
-    {% type = @type.name(generic_args: false).stringify %}
-
+    @[AlwaysInline]
     def is_ok : Bool
-    {% if type == "Ok" %}
-      true
-    {% else %}
-      false
-    {% end %}
+      case self
+      when Ok
+        true
+      else
+        false
+      end
     end
 
+    @[AlwaysInline]
     def is_ok_and(&block : T -> Bool) : Bool
-    {% if type == "Err" %}
-      false
-    {% elsif type == "Ok" %}
-      block.call(@value)
-    {% end %}
+      case self
+      when Ok
+        block.call(self.@value)
+      else
+        false
+      end
     end
 
+    @[AlwaysInline]
     def is_ok_and(block : T -> Bool) : Bool
-    {% if type == "Err" %}
-      false
-    {% elsif type == "Ok" %}
-      block.call(@value)
-    {% end %}
+      case self
+      when Ok
+        block.call(self.@value)
+      else
+        false
+      end
     end
 
+    @[AlwaysInline]
     def is_err : Bool
-    {% if type == "Err" %}
-      true
-    {% else %}
-      false
-    {% end %}
+      case self
+      when Ok
+        false
+      else
+        true
+      end
     end
 
+    @[AlwaysInline]
     def is_err_and(&block : E -> Bool) : Bool
-    {% if type == "Ok" %}
-      false
-    {% elsif type == "Err" %}
-      block.call(@error)
-    {% end %}
+      case self
+      when Ok
+        false
+      else
+        block.call(self.@error)
+      end
     end
 
+    @[AlwaysInline]
     def is_err_and(block : E -> Bool) : Bool
-    {% if type == "Ok" %}
-      false
-    {% elsif type == "Err" %}
-      block.call(@error)
-    {% end %}
+      case self
+      when Ok
+        false
+      else
+        block.call(self.@error)
+      end
     end
 
+    @[AlwaysInline]
     def ok : Option(T)
-    {% if type == "Ok" %}
-      Some(T).new(@value)
-    {% elsif type == "Err" %}
-      None(T).new
-    {% end %}
+      case self
+      when Ok
+        Some(T).new(self.@value)
+      else
+        None(T).new
+      end
     end
 
+    @[AlwaysInline]
     def err : Option(E)
-    {% if type == "Ok" %}
-      None(E).new
-    {% elsif type == "Err" %}
-      Some.new(@error)
-    {% end %}
+      case self
+      when Ok
+        None(E).new
+      else
+        Some.new(self.@error)
+      end
     end
 
+    @[AlwaysInline]
     def map(&block : T -> U) : Result(U, E) forall U
-    {% if type == "Ok" %}
-      Ok(U, E).new(block.call(@value))
-    {% elsif type == "Err" %}
-      Err(U, E).new(@error)
-    {% end %}
+      case self
+      when Ok
+        Ok(U, E).new(block.call(self.@value))
+      else
+        Err(U, E).new(self.@error)
+      end
     end
 
+    @[AlwaysInline]
     def map(block : T -> U) : Result(U, E) forall U
-    {% if type == "Ok" %}
-      Ok(U, E).new(block.call(@value))
-    {% elsif type == "Err" %}
-      Err(U, E).new(@error)
-    {% end %}
+      case self
+      when Ok
+        Ok(U, E).new(block.call(self.@value))
+      else
+        Err(U, E).new(self.@error)
+      end
     end
 
+    @[AlwaysInline]
     def map_or(default : U, &block : T -> U) : U forall U
-    {% if type == "Ok" %}
-      block.call(@value)
-    {% elsif type == "Err" %}
-      default
-    {% end %}
+      case self
+      when Ok
+        block.call(self.@value)
+      else
+        default
+      end
     end
 
+    @[AlwaysInline]
     def map_or(default : U, block : T -> U) : U forall U
-    {% if type == "Ok" %}
-      block.call(@value)
-    {% elsif type == "Err" %}
-      default
-    {% end %}
+      case self
+      when Ok
+        block.call(self.@value)
+      else
+        default
+      end
     end
 
+    @[AlwaysInline]
     def map_or_else(default : E -> U, &block : T -> U) : U forall U
-    {% if type == "Ok" %}
-      block.call(@value)
-    {% elsif type == "Err" %}
-      default.call(@error)
-    {% end %}
+      case self
+      when Ok
+        block.call(self.@value)
+      else
+        default.call(self.@error)
+      end
     end
 
+    @[AlwaysInline]
     def map_or_else(default : E -> U, block : T -> U) : U forall U
-    {% if type == "Ok" %}
-      block.call(@value)
-    {% elsif type == "Err" %}
-      default.call(@error)
-    {% end %}
+      case self
+      when Ok
+        block.call(self.@value)
+      else
+        default.call(self.@error)
+      end
     end
 
+    @[AlwaysInline]
     def map_err(&block : E -> F) : Result(T, F) forall F
-    {% if type == "Ok" %}
-      Ok(T, F).new(@value)
-    {% elsif type == "Err" %}
-      Err(T, F).new(block.call(@error))
-    {% end %}
+      case self
+      when Ok
+        Ok(T, F).new(self.@value)
+      else
+        Err(T, F).new(block.call(self.@error))
+      end
     end
 
+    @[AlwaysInline]
     def map_err(block : E -> F) : Result(T, F) forall F
-    {% if type == "Ok" %}
-      Ok(T, F).new(@value)
-    {% elsif type == "Err" %}
-      Err(T, F).new(block.call(@error))
-    {% end %}
+      case self
+      when Ok
+        Ok(T, F).new(self.@value)
+      else
+        Err(T, F).new(block.call(self.@error))
+      end
     end
 
+    @[AlwaysInline]
     def inspect(&block : T ->) : Result(T, E)
-    {% if type == "Ok" %}
-      value = @value
-      block.call(value)
-    {% end %}
+      case self
+      when Ok
+        value = self.@value
+        block.call(value)
+      else
+      end
       self
     end
 
+    @[AlwaysInline]
     def inspect(block : T ->) : Result(T, E)
-    {% if type == "Ok" %}
-      value = @value
-      block.call(value)
-    {% end %}
+      case self
+      when Ok
+        value = self.@value
+        block.call(value)
+      else
+      end
       self
     end
 
+    @[AlwaysInline]
     def inspect_err(&block : E ->) : Result(T, E)
-    {% if type == "Err" %}
-      error = @error
-      block.call(error)
-    {% end %}
+      case self
+      when Ok
+      else
+        error = self.@error
+        block.call(error)
+      end
       self
     end
 
+    @[AlwaysInline]
     def inspect_err(block : E ->) : Result(T, E)
-    {% if type == "Err" %}
-      error = @error
-      block.call(error)
-    {% end %}
+      case self
+      when Ok
+      else
+        error = self.@error
+        block.call(error)
+      end
       self
     end
 
+    @[AlwaysInline]
     def expect(msg : String) : T
-    {% if type == "Ok" %}
-      @value
-    {% elsif type == "Err" %}
-      raise UnwrapOnErr.new(msg)
-    {% end %}
+      case self
+      when Ok
+        self.@value
+      else
+        raise UnwrapOnErr.new(msg)
+      end
     end
 
+    @[AlwaysInline]
     def expect_err(msg : String) : E
-    {% if type == "Ok" %}
-      raise UnwrapErrOnOk.new(msg)
-    {% elsif type == "Err" %}
-      @error
-    {% end %}
+      case self
+      when Ok
+        raise UnwrapErrOnOk.new(msg)
+      else
+        self.@error
+      end
     end
 
+    @[AlwaysInline]
     def unwrap : T
-    {% if type == "Ok" %}
-      @value
-    {% elsif type == "Err" %}
-      raise UnwrapOnErr.new("Called unwrap on Err")
-    {% end %}
+      case self
+      when Ok
+        self.@value
+      else
+        raise UnwrapOnErr.new("Called unwrap on Err")
+      end
     end
 
+    @[AlwaysInline]
     def unwrap_err : E
-    {% if type == "Ok" %}
-      raise UnwrapErrOnOk.new("called `Result#unwrap_err` on an `Ok` value")
-    {% elsif type == "Err" %}
-      @error
-    {% end %}
+      case self
+      when Ok
+        raise UnwrapErrOnOk.new("called `Result#unwrap_err` on an `Ok` value")
+      else
+        self.@error
+      end
     end
 
+    @[AlwaysInline]
     def unwrap_or(default : T) : T
-    {% if type == "Ok" %}
-      @value
-    {% elsif type == "Err" %}
-      default
-    {% end %}
+      case self
+      when Ok
+        self.@value
+      else
+        default
+      end
     end
 
+    @[AlwaysInline]
     def unwrap_or_else(&block : E -> T) : T
-    {% if type == "Ok" %}
-      @value
-    {% elsif type == "Err" %}
-      block.call(@error)
-    {% end %}
+      case self
+      when Ok
+        self.@value
+      else
+        block.call(self.@error)
+      end
     end
 
+    @[AlwaysInline]
     def unwrap_or_else(block : E -> T) : T
-    {% if type == "Ok" %}
-      @value
-    {% elsif type == "Err" %}
-      block.call(@error)
-    {% end %}
+      case self
+      when Ok
+        self.@value
+      else
+        block.call(self.@error)
+      end
     end
 
+    @[AlwaysInline]
     def and(other : Result(U, E)) : Result(U, E) forall U
-    {% if type == "Ok" %}
-      other
-    {% elsif type == "Err" %}
-      Err(U, E).new(@error)
-    {% end %}
+      case self
+      when Ok
+        other
+      else
+        Err(U, E).new(self.@error)
+      end
     end
 
+    @[AlwaysInline]
     def and_then(&block : T -> Result(U, E)) : Result(U, E) forall U
-    {% if type == "Ok" %}
-      block.call(@value)
-    {% elsif type == "Err" %}
-      Err(U, E).new(@error)
-    {% end %}
+      case self
+      when Ok
+        block.call(self.@value)
+      else
+        Err(U, E).new(self.@error)
+      end
     end
 
+    @[AlwaysInline]
     def and_then(block : T -> Result(U, E)) : Result(U, E) forall U
-    {% if type == "Ok" %}
-      block.call(@value)
-    {% elsif type == "Err" %}
-      Err(U, E).new(@error)
-    {% end %}
+      case self
+      when Ok
+        block.call(self.@value)
+      else
+        Err(U, E).new(self.@error)
+      end
     end
 
+    @[AlwaysInline]
     def or(other : Result(T, F)) : Result(T, F) forall F
-    {% if type == "Ok" %}
-      Ok(T, F).new(@value)
-    {% elsif type == "Err" %}
-      other
-    {% end %}
+      case self
+      when Ok
+        Ok(T, F).new(self.@value)
+      else
+        other
+      end
     end
 
+    @[AlwaysInline]
     def or_else(&block : E -> Result(T, F)) : Result(T, F) forall F
-    {% if type == "Ok" %}
-      Ok(T, F).new(@value)
-    {% elsif type == "Err" %}
-      block.call(@error)
-    {% end %}
+      case self
+      when Ok
+        Ok(T, F).new(self.@value)
+      else
+        block.call(self.@error)
+      end
     end
 
+    @[AlwaysInline]
     def or_else(block : E -> Result(T, F)) : Result(T, F) forall F
-    {% if type == "Ok" %}
-      Ok(T, F).new(@value)
-    {% elsif type == "Err" %}
-      block.call(@error)
-    {% end %}
+      case self
+      when Ok
+        Ok(T, F).new(self.@value)
+      else
+        block.call(self.@error)
+      end
     end
   end
 
