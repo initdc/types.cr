@@ -39,9 +39,27 @@ p Option.from?(arr[10]?)
 p Option.from! { arr[10] }
 ```
 
-## Development
+## Better way
 
-TODO: Write development instructions here
+Just use the [`Union(*T)`](https://crystal-lang.org/api/latest/Union.html) type from Crystal itself.
+
+```crystal
+def div?(a : Float64, b : Float64) : Float64?
+  return if b == 0
+  a / b
+end
+
+p div?(10, 2)
+p div?(10, 0)
+
+def div(a : Float64, b : Float64) : Float64 | String
+  return "Division by zero" if b == 0
+  a / b
+end
+
+p div(10, 2)
+p div(10, 0)
+```
 
 ## Contributing
 
